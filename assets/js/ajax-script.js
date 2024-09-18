@@ -17,6 +17,7 @@
                     state: state
                 },
                 success: function (response) {
+                    console.log('Cities loaded: ', response);  // For debugging purposes
                     cityDropdown.html(response);  // Populate the city dropdown with the response
                 },
                 error: function () {
@@ -24,10 +25,10 @@
                 }
             });
         });
-    });
-    // Ensure Select2 is initialized after the popup is shown
 
-    $(document).on('elementor/popup/show', function () {
-        $('.elementor-popup select').select2('destroy');
+        // Popup opened event, without Select2 initialization
+        $(document).on('pumAfterOpen', function () {
+            console.log('Popup opened');
+        });
     });
 })(jQuery);
