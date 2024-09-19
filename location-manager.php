@@ -20,11 +20,11 @@ include_once plugin_dir_path(__FILE__) . 'includes/ajax-handler.php';  // Check 
 function lm_enqueue_custom_js() {
     // Only load in admin panel
     if (is_admin()) {
-        wp_enqueue_script('lm-ajax-script-admin', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), null, true);
+        wp_enqueue_script('lm-ajax-script-admin', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), '1.79', true);
         wp_localize_script('lm-ajax-script-admin', 'ajaxurl', admin_url('admin-ajax.php'));
     } else {
         // Load for frontend
-        wp_enqueue_script('lm-ajax-script-frontend', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), null, true);
+        wp_enqueue_script('lm-ajax-script-frontend', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), '1.79', true);
         wp_localize_script('lm-ajax-script-frontend', 'ajaxurl', admin_url('admin-ajax.php'));
     }
 }

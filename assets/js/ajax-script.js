@@ -1,34 +1,54 @@
 (function ($) {
     $(document).ready(function () {
-        // When the state dropdown changes
-        $('#lm_state').on('change', function () {
-            var state = $(this).val();
-            var cityDropdown = $('#lm_city');
+        // Select2'yi devre dışı bırakmadan önce kontrol et
+        $(document).on('pumAfterOpen', function () {
+            
+            // Eğer Select2 zaten aktifse, onu devre dışı bırak
+            if ($.fn.select2) {
+                if ($('#lm_state_dropdown').data('select2')) {
+                    $('#lm_state_dropdown').select2('destroy');
+                }
+                if ($('#lm_city_dropdown').data('select2')) {
+                    $('#lm_city_dropdown').select2('destroy');
+                }
+            }
+        });
 
-            // Reset the city dropdown
+        // State dropdown değiştiğinde çalışacak kod
+        $('#lm_state_dropdown').on('change', function () {
+            var state = $(this).val();
+            var cityDropdown = $('#lm_city_dropdown');
+
+            // City dropdown'ı sıfırla
             cityDropdown.html('<option value="">Loading...</option>');
 
-            // Send AJAX request to fetch cities
+            // AJAX ile şehirleri getir
             $.ajax({
-                url: ajaxurl,  // This variable is provided by WordPress
+                url: ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'get_cities',  // This is the action that will trigger the PHP function
+                    action: 'get_cities',
                     state: state
                 },
                 success: function (response) {
-                    console.log('Cities loaded: ', response);  // For debugging purposes
-                    cityDropdown.html(response);  // Populate the city dropdown with the response
+                    cityDropdown.html(response);
                 },
                 error: function () {
-                    cityDropdown.html('<option value="">Error loading cities</option>');  // Handle errors
+                    cityDropdown.html('<option value="">Error loading cities</option>');
                 }
             });
         });
+    });
 
-        // Popup opened event, without Select2 initialization
-        $(document).on('pumAfterOpen', function () {
-            console.log('Popup opened');
-        });
+    $(document).on('pumAfterClose', function () {
+        // Pop-up kapanırken Select2'yi devre dışı bırakmadan önce kontrol et
+        if ($.fn.select2) {
+            if ($('#lm_state_dropdown').data('select2')) {
+                $('#lm_state_dropdown').select2('destroy');
+            }
+            if ($('#lm_city_dropdown').data('select2')) {
+                $('#lm_city_dropdown').select2('destroy');
+            }
+        }
     });
 })(jQuery);
