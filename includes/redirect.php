@@ -1,14 +1,17 @@
 <?php
-function lm_redirect_to_service_page() {
+function lm_redirect_to_office_page() {
     if (isset($_POST['lm_state_dropdown']) && isset($_POST['lm_city_dropdown'])) {
         $state = sanitize_text_field($_POST['lm_state_dropdown']);
         $city = sanitize_text_field($_POST['lm_city_dropdown']);
-        $service_slug = 'blinds'; // Örnek ürün/hizmet slug
 
-        // Dinamik URL'ye yönlendirme
-        wp_redirect(home_url("/$service_slug/" . strtolower($city) . '-' . strtolower($state)));
+        // Boşlukları "-" ile değiştirme
+        $state_slug = str_replace(' ', '-', strtolower($state));
+        $city_slug = str_replace(' ', '-', strtolower($city));
+
+        // Dinamik URL'ye yönlendirme (her zaman office sayfasına)
+        wp_redirect(home_url("/office/" . $city_slug . '-' . $state_slug));
         exit;
     }
 }
-add_action('template_redirect', 'lm_redirect_to_service_page');
+add_action('template_redirect', 'lm_redirect_to_office_page');
 ?>

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Location Manager
 Description: A plugin that allows managing states and cities and dynamic URL redirection based on location.
-Version: 1.2
+Version: 1.3
 Author: Code Genie Studio
 */
 
@@ -14,22 +14,26 @@ include_once plugin_dir_path(__FILE__) . 'includes/meta-boxes.php';  // Check if
 include_once plugin_dir_path(__FILE__) . 'includes/redirect.php';  // Check if this file exists
 include_once plugin_dir_path(__FILE__) . 'includes/geoip.php';  // Check if this file exists
 include_once plugin_dir_path(__FILE__) . 'includes/ajax-handler.php';  // Check if this file exists
-
+include_once plugin_dir_path(__FILE__) . '/includes/admin-services.php';
+include_once plugin_dir_path(__FILE__) . '/includes/dynamic-menu.php';
+include_once plugin_dir_path(__FILE__) . '/includes/service-types.php';
 
 // Enqueue JavaScript for the plugin (for both admin panel and frontend usage)
+// JavaScript dosyasını bir kez çağıracak şekilde düzenleyelim
 function lm_enqueue_custom_js() {
-    // Only load in admin panel
-    if (is_admin()) {
-        wp_enqueue_script('lm-ajax-script-admin', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), '1.79', true);
-        wp_localize_script('lm-ajax-script-admin', 'ajaxurl', admin_url('admin-ajax.php'));
-    } else {
-        // Load for frontend
-        wp_enqueue_script('lm-ajax-script-frontend', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), '1.79', true);
-        wp_localize_script('lm-ajax-script-frontend', 'ajaxurl', admin_url('admin-ajax.php'));
+    // Önceki script'in zaten yüklü olup olmadığını kontrol edelim
+    if (!wp_script_is('lm-ajax-script-frontend', 'enqueued')) {
+        wp_enqueue_script('lm-ajax-script-frontend', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), '1.80', true);
+        
+        // Service slugs'ları dinamik olarak alıp JS'e aktaralım
+        $service_slugs = lm_get_dynamic_service_slugs();
+        wp_localize_script('lm-ajax-script-frontend', 'lm_service_slugs', array(
+            'slugs' => $service_slugs,
+        ));
     }
 }
 add_action('wp_enqueue_scripts', 'lm_enqueue_custom_js');
-add_action('admin_enqueue_scripts', 'lm_enqueue_custom_js');
+
 
 
 // Plugin activation hook
@@ -43,5 +47,6 @@ function lm_deactivate() {
     flush_rewrite_rules();
 }
 register_deactivation_hook(__FILE__, 'lm_deactivate');
+
 
 ?>
