@@ -2,7 +2,7 @@
 /*
 Plugin Name: Location Manager
 Description: A plugin that allows managing states and cities and dynamic URL redirection based on location.
-Version: 1.3
+Version: 1.5.1
 Author: Code Genie Studio
 */
 
@@ -23,7 +23,7 @@ include_once plugin_dir_path(__FILE__) . '/includes/service-types.php';
 function lm_enqueue_custom_js() {
     // Önceki script'in zaten yüklü olup olmadığını kontrol edelim
     if (!wp_script_is('lm-ajax-script-frontend', 'enqueued')) {
-        wp_enqueue_script('lm-ajax-script-frontend', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), '1.80', true);
+        wp_enqueue_script('lm-ajax-script-frontend', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), '1.90', true);
         
         // Service slugs'ları dinamik olarak alıp JS'e aktaralım
         $service_slugs = lm_get_dynamic_service_slugs();

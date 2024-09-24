@@ -88,15 +88,15 @@
         });
 
         // Dynamically update service links based on stored city and state
-        const userCity = localStorage.getItem('selected_city');
-        const userState = localStorage.getItem('selected_state');
+        const userCity = localStorage.getItem('selected_city').toLowerCase().replace(/\s+/g, '-');
+        const userState = localStorage.getItem('selected_state').toLowerCase().replace(/\s+/g, '-');
 
         // Make sure that the service slugs exist
         if (typeof lm_service_slugs !== 'undefined' && Array.isArray(lm_service_slugs.slugs)) {
             // Iterate through the menu items and update links
             $('.header-menu a').each(function () {
                 const linkText = $(this).text().toLowerCase().trim();
-
+                console.log("Link Text:" + linkText);
                 // Check if the link text matches any service slug
                 const matchingSlug = lm_service_slugs.slugs.find(slug => linkText.includes(slug));
 
@@ -115,5 +115,27 @@
         } else {
             console.error('Service slugs are not defined or are not an array.');
         }
+
     });
+
 })(jQuery);
+
+document.addEventListener('DOMContentLoaded', function () {
+    var userCity = localStorage.getItem('selected_city');
+    let userState = localStorage.getItem('selected_state');
+
+    if (userCity && userState) {
+        let formattedCity = userCity.toLowerCase().replace(/\s+/g, '-');
+        let formattedState = userState.toLowerCase().replace(/\s+/g, '-');
+
+        let locationTextElement = document.getElementById('header-location-text');
+        let linkHref = document.createElement("a");
+        linkHref.href = `/office/${formattedCity}-${formattedState}`;
+        linkHref.textContent = userCity;
+
+        if (locationTextElement) {
+            locationTextElement.innerHTML = "";
+            locationTextElement.appendChild(linkHref);
+        }
+    }
+});
