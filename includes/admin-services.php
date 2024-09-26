@@ -1,5 +1,4 @@
 <?php
-// Register Custom Post Type for Service Types
 function lm_register_service_type_cpt() {
     $labels = array(
         'name'                  => _x( 'Service Types', 'Post Type General Name', 'text_domain' ),
@@ -11,12 +10,12 @@ function lm_register_service_type_cpt() {
     $args = array(
         'label'                 => __( 'Service Type', 'text_domain' ),
         'labels'                => $labels,
-        'supports'              => array( 'title' ), // Only title is needed for service type
-        'public'                => false, // Not publicly visible
-        'show_ui'               => true, // Show in admin panel
-        'show_in_menu'          => true, // Show in admin menu
+        'supports'              => array( 'title' ),
+        'public'                => false,
+        'show_ui'               => true, 
+        'show_in_menu'          => true,
         'menu_position'         => 20,
-        'menu_icon'             => 'dashicons-list-view', // Icon for service type in admin menu
+        'menu_icon'             => 'dashicons-list-view',
         'capability_type'       => 'post',
     );
     
@@ -25,12 +24,9 @@ function lm_register_service_type_cpt() {
 
 add_action( 'init', 'lm_register_service_type_cpt', 0 );
 
-// Display the meta box for services dynamically
 function lm_display_service_meta_box($post) {
-    // Retrieve current service type if it exists
     $current_service = get_post_meta($post->ID, '_lm_service_type', true);
     
-    // Fetch all published service types
     $services = get_posts(array(
         'post_type' => 'lm_service_type',
         'posts_per_page' => -1,

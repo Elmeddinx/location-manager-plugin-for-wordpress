@@ -10,7 +10,6 @@ function lm_register_api_settings() {
 }
 add_action('admin_menu', 'lm_register_api_settings');
 
-// Display the settings page
 function lm_display_api_settings() {
     ?>
     <div class="wrap">
@@ -26,7 +25,6 @@ function lm_display_api_settings() {
     <?php
 }
 
-// Initialize settings
 function lm_initialize_api_settings() {
     register_setting('lm_api_settings_group', 'lm_ipinfo_api_key');
     register_setting('lm_api_settings_group', 'lm_ipstack_api_key');
@@ -41,12 +39,10 @@ function lm_initialize_api_settings() {
 
 add_action('admin_init', 'lm_initialize_api_settings');
 
-// Section description
 function lm_api_section_callback() {
     echo '<p>Enter your API keys here for the different GeoIP services.</p>';
 }
 
-// API key input fields
 function lm_ipinfo_api_key_callback() {
     $api_key = get_option('lm_ipinfo_api_key');
     echo '<input type="text" name="lm_ipinfo_api_key" value="' . esc_attr($api_key) . '" />';
