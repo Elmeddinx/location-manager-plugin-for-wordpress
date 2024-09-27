@@ -76,17 +76,20 @@
 
         let userCity;
         let userState;
-        if(localStorage.getItem('selected_city')) {
+        if (localStorage.getItem('selected_city')) {
             userCity = localStorage.getItem('selected_city').toLowerCase().replace(/\s+/g, '-');
         }
-        if(localStorage.getItem('selected_city')) {
+        if (localStorage.getItem('selected_city')) {
             userState = localStorage.getItem('selected_state').toLowerCase().replace(/\s+/g, '-');
         }
 
         if (userCity && userState && typeof lm_service_slugs !== 'undefined' && Array.isArray(lm_service_slugs.slugs)) {
             $('.header-menu a').each(function () {
-                const linkText = $(this).text().toLowerCase().trim();
-                const matchingSlug = lm_service_slugs.slugs.find(slug => linkText.includes(slug));
+                const linkText = $(this).text().toLowerCase().trim().replace(/\s+/g, '-');
+                const matchingSlug = lm_service_slugs.slugs.find(slug => {
+                    const regex = new RegExp(`^${slug}$`, 'i');  // Tam eşleşme için regex oluştur
+                    return regex.test(linkText);  // linkText tam olarak slug ile eşleşiyor mu?
+                });
 
                 if (matchingSlug && userCity && userState) {
                     $(this).attr('href', '/' + matchingSlug + '/' + userCity + '-' + userState);
