@@ -22,4 +22,5 @@ function lm_get_cities_by_state() {
 
 add_action('wp_ajax_get_cities', 'lm_get_cities_by_state');
 add_action('wp_ajax_nopriv_get_cities', 'lm_get_cities_by_state');
+
 ?>

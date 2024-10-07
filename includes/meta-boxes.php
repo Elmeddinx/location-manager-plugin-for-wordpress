@@ -1,12 +1,12 @@
 <?php
 function lm_add_meta_boxes() {
     add_meta_box(
-        'location_info',           
-        'Location Info',           
-        'lm_display_location_meta_box', 
-        'page',                    
-        'side',                    
-        'high'                     
+        'location_info',
+        'Location Info',
+        'lm_display_location_meta_box',
+        'page',
+        'side',
+        'high'
     );
 }
 add_action('add_meta_boxes', 'lm_add_meta_boxes');
@@ -14,10 +14,10 @@ add_action('add_meta_boxes', 'lm_add_meta_boxes');
 function lm_display_location_meta_box($post) {
     $saved_state = get_post_meta($post->ID, '_lm_state', true);
     $saved_city = get_post_meta($post->ID, '_lm_city', true);
-    $locations = lm_get_locations(); 
+    $locations = lm_get_locations();
 
     echo '<label for="lm_state">State:</label>';
-    echo '<select id="lm_state" name="lm_state" onchange="loadCities(this.value)" style="width: 100%;">';
+    echo '<select id="lm_state" name="lm_state" style="width: 100%;">';
     echo '<option value="">Select State</option>';
 
     foreach ($locations as $state => $cities) {
@@ -33,42 +33,52 @@ function lm_display_location_meta_box($post) {
     if ($saved_state && isset($locations[$saved_state])) {
         $saved_cities = explode(',', $locations[$saved_state]);
         foreach ($saved_cities as $city) {
+            $city = trim($city);
             $selected_city = ($saved_city == $city) ? 'selected' : '';
-            echo '<option value="' . esc_attr(trim($city)) . '" ' . $selected_city . '>' . ucfirst(trim($city)) . '</option>';
+            echo '<option value="' . esc_attr($city) . '" ' . $selected_city . '>' . ucfirst($city) . '</option>';
         }
     }
     echo '</select>';
     ?>
-
     <script type="text/javascript">
-        function loadCities(state) {
-            var cityDropdown = document.getElementById('lm_city');
-            cityDropdown.innerHTML = '<option value="">Loading...</option>';
+        jQuery(document).ready(function ($) {
+            function loadCities(state) {
+                var cityDropdown = $('#lm_city');
+                cityDropdown.html('<option value="">Loading...</option>');
 
-            var data = {
-                'action': 'get_cities',
-                'state': state
-            };
+                $.ajax({
+                    url: ajaxurl,
+                    method: 'POST',
+                    data: {
+                        action: 'get_cities',
+                        state: state
+                    },
+                    success: function (response) {
+                        cityDropdown.html(response);
+                        var savedCity = '<?php echo esc_js($saved_city); ?>';
+                        if (savedCity) {
+                            cityDropdown.val(savedCity);
+                        }
+                    }
+                });
+            }
 
-            jQuery.post(ajaxurl, data, function (response) {
-                cityDropdown.innerHTML = response;
-
-                var savedCity = '<?php echo esc_js($saved_city); ?>';
-                if (savedCity) {
-                    console.log("Saved city: " + savedCity);
-                    jQuery(cityDropdown).val(savedCity);
+            $('#lm_state').on('change', function () {
+                var state = $(this).val();
+                if (state) {
+                    loadCities(state);
+                } else {
+                    $('#lm_city').html('<option value="">Select City</option>');
                 }
             });
-        }
 
-        jQuery(document).ready(function () {
-            var state = jQuery('#lm_state').val();
-            if (state) {
-                loadCities(state);
+            // Load cities on page load if state is already selected
+            var initialState = $('#lm_state').val();
+            if (initialState) {
+                loadCities(initialState);
             }
         });
     </script>
-
     <?php
 }
 
@@ -87,31 +97,4 @@ function lm_save_location_info($post_id) {
     }
 }
 add_action('save_post', 'lm_save_location_info');
-
-
-
-
-function lm_add_service_meta_box() {
-    add_meta_box(
-        'lm_service_type_meta', 
-        'Service Type', 
-        'lm_display_service_meta_box',
-        'page',
-        'side', 
-        'high'
-    );
-}
-add_action('add_meta_boxes', 'lm_add_service_meta_box');
-
-function lm_save_service_meta_box_data($post_id) {
-    if (array_key_exists('lm_service_type', $_POST)) {
-        update_post_meta(
-            $post_id,
-            '_lm_service_type',
-            sanitize_text_field($_POST['lm_service_type'])
-        );
-    }
-}
-add_action('save_post', 'lm_save_service_meta_box_data');
-
 ?>
