@@ -1,5 +1,4 @@
 <?php
-// Location Menu
 function lm_add_admin_menu() {
     add_menu_page(
         'Locations',
@@ -11,7 +10,6 @@ function lm_add_admin_menu() {
         6
     );
 
-    // Employees Menu
     add_menu_page(
         'Employees',
         'Employees',
@@ -33,7 +31,6 @@ function lm_add_admin_menu() {
 }
 add_action('admin_menu', 'lm_add_admin_menu');
 
-// Enqueue Media Uploader Scripts
 function lm_enqueue_media_uploader($hook) {
     if ($hook != 'toplevel_page_lm_add_employee' && $hook != 'employees_page_lm_add_employee') {
         return;
@@ -42,16 +39,12 @@ function lm_enqueue_media_uploader($hook) {
 }
 add_action('admin_enqueue_scripts', 'lm_enqueue_media_uploader');
 
-// Display Locations Management Page
 function lm_display_locations() {
-    // Kullanıcının yetkisini kontrol edin
     if (!current_user_can('manage_options')) {
         wp_die('You do not have sufficient permissions to access this page.');
     }
 
-    // Eyalet silme işlemi
     if (isset($_GET['delete_state'])) {
-        // Nonce doğrulaması
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'lm_delete_state_nonce')) {
             wp_die('Security check failed');
         }
@@ -63,7 +56,6 @@ function lm_display_locations() {
         exit;
     }
 
-    // Edit işlemi için kontrol
     $editing = false;
     $edit_state = '';
     $edit_cities = '';
@@ -74,34 +66,27 @@ function lm_display_locations() {
         $edit_cities = get_option('lm_state_' . strtolower($edit_state));
     }
 
-    // Nonce doğrulaması ve form işlemleri
     if (isset($_POST['lm_locations_nonce']) && wp_verify_nonce($_POST['lm_locations_nonce'], 'lm_save_locations')) {
-        // Formdan gelen verileri kaydedin
         if (isset($_POST['lm_state']) && isset($_POST['lm_cities'])) {
             $state = sanitize_text_field($_POST['lm_state']);
             $cities = sanitize_textarea_field($_POST['lm_cities']);
 
-            // Eğer düzenleme yapılıyorsa, mevcut option'ı güncelleyin
             if (isset($_POST['editing']) && $_POST['editing'] == '1') {
-                // Eyaleti ve şehirleri güncelleyin
                 update_option('lm_state_' . strtolower($state), $cities, 'no');
                 echo '<div class="updated"><p>Location updated successfully.</p></div>';
             } else {
-                // Yeni eyalet ekleme
                 update_option('lm_state_' . strtolower($state), $cities, 'no');
                 echo '<div class="updated"><p>Location saved successfully.</p></div>';
             }
         }
     }
 
-    // Eyalet ve şehirleri alın
     $locations = lm_get_locations();
 
     ?>
     <div class="wrap">
         <h1>Manage Locations</h1>
 
-        <!-- Add New Location Form -->
         <h2>Add New Location</h2>
         <form method="post" action="">
             <?php wp_nonce_field('lm_save_locations', 'lm_locations_nonce'); ?>
@@ -149,7 +134,6 @@ function lm_display_locations() {
             </tbody>
         </table>
         
-        <!-- Edit Location Form -->
         <?php if ($editing): ?>
             <h2>Edit Location</h2>
             <form method="post" action="">
@@ -176,7 +160,6 @@ function lm_display_locations() {
 
 
 
-// Get Locations
 function lm_get_locations() {
     global $wpdb;
     $options = $wpdb->get_results("SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'lm_state_%'");
@@ -188,7 +171,6 @@ function lm_get_locations() {
     return $locations;
 }
 
-// Employee Form (Add New Employee or Edit Employee)
 function lm_display_employee_form() {
     $is_edit = false;
     $employee_data = array(
@@ -212,14 +194,13 @@ function lm_display_employee_form() {
                 'city' => '',
                 'image_id' => '',
             );
-            $is_edit = false; // Çalışan bulunamadı, yeni ekleme olarak işlem yap
+            $is_edit = false;
         }
     }
 
     ?>
     <div class="wrap">
         <h1><?php echo $is_edit ? 'Edit Employee' : 'Add New Employee'; ?></h1>
-        <!-- Formun action özelliğini güncelledik -->
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('lm_save_employee_nonce', 'lm_employee_nonce'); ?>
             <label for="employee_name">Full Name:</label>
@@ -253,7 +234,6 @@ function lm_display_employee_form() {
                 ?>
             </select><br/><br/>
 
-            <!-- Media Uploader Field -->
             <label for="employee_image">Profile Image:</label><br/>
             <div id="employee_image_container">
                 <?php if (!empty($employee_data['image_id'])): ?>
@@ -307,14 +287,12 @@ function lm_display_employee_form() {
                 }
             });
 
-            // Sayfa yüklendiğinde eğer state seçiliyse şehirleri yükle
             var initialState = $('#employee_state').val();
             var initialCity = '<?php echo esc_js($employee_data['city']); ?>';
             if (initialState) {
                 loadCities(initialState, initialCity);
             }
 
-            // Media Uploader
             var mediaUploader;
 
             $('#upload_employee_image_button').on('click', function (e) {
@@ -355,24 +333,17 @@ function lm_display_employee_form() {
     <?php
 }
 
-// Save employee to the database
 function lm_save_employee() {
-    // Nonce doğrulaması
     if (!isset($_POST['lm_employee_nonce']) || !wp_verify_nonce($_POST['lm_employee_nonce'], 'lm_save_employee_nonce')) {
         wp_die('Security check failed');
     }
 
-    // Kullanıcının yetkisini kontrol edin
     if (!current_user_can('manage_options')) {
         wp_die('You do not have sufficient permissions to access this page.');
     }
 
-    // Log mesajı ekleyelim
-    error_log('lm_save_employee fonksiyonu çalıştı');
 
-    // Form verilerini sanitize et
     $employee_name = sanitize_text_field($_POST['employee_name']);
-    error_log('Çalışan adı: ' . $employee_name);
 
     $employee_title = sanitize_text_field($_POST['employee_title']);
     $employee_state = sanitize_text_field($_POST['employee_state']);
@@ -381,7 +352,6 @@ function lm_save_employee() {
     $is_edit = isset($_POST['original_name']);
     $original_name = $is_edit ? sanitize_text_field($_POST['original_name']) : '';
 
-    // Çalışan verilerini bir dizi olarak sakla
     $employee_data = array(
         'name' => $employee_name,
         'title' => $employee_title,
@@ -390,43 +360,30 @@ function lm_save_employee() {
         'image_id' => $employee_image_id,
     );
 
-    // Eşsiz bir option name oluşturmak için sanitize_title kullanıyoruz
     $employee_slug = sanitize_title($employee_name);
     $option_name = 'lm_employee_' . $employee_slug;
 
-    // Log mesajı ekleyelim
-    error_log('Option name: ' . $option_name);
 
-    // Eğer düzenleme yapılıyorsa ve isim değişmişse eski kaydı sil
     if ($is_edit && $original_name !== $employee_name) {
         $old_employee_slug = sanitize_title($original_name);
         $old_option_name = 'lm_employee_' . $old_employee_slug;
         delete_option($old_option_name);
-        error_log('Eski kayıt silindi: ' . $old_option_name);
     }
 
-    // WordPress options tablosuna kaydet
     $result = update_option($option_name, $employee_data, 'no');
-    error_log('update_option result: ' . var_export($result, true));
 
-    // Kaydedilen veriyi hemen geri çağır ve logla
     $saved_data = get_option($option_name);
-    error_log('Kaydedilen veri: ' . print_r($saved_data, true));
 
-    // Yeniden yönlendir
     wp_redirect(admin_url('admin.php?page=lm_employee_list'));
     exit;
 }
 add_action('admin_post_lm_save_employee', 'lm_save_employee');
 
-// Delete employee function
 function lm_delete_employee() {
-    // Nonce doğrulaması
     if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'lm_delete_employee_nonce')) {
         wp_die('Security check failed');
     }
 
-    // Kullanıcının yetkisini kontrol edin
     if (!current_user_can('manage_options')) {
         wp_die('You do not have sufficient permissions to access this page.');
     }
@@ -442,20 +399,8 @@ function lm_delete_employee() {
 }
 add_action('admin_post_lm_delete_employee', 'lm_delete_employee');
 
-// Employee List with Filter
 function lm_display_employee_list() {
     global $wpdb;
-
-    // Silme işlemini buradan kaldırıyoruz
-    /*
-    if (isset($_GET['delete_employee'])) {
-        $employee_slug = sanitize_title($_GET['delete_employee']);
-        $option_name = 'lm_employee_' . $employee_slug;
-        delete_option($option_name);
-        wp_redirect(admin_url('admin.php?page=lm_employee_list'));
-        exit;
-    }
-    */
 
     ?>
     <div class="wrap">
@@ -495,18 +440,16 @@ function lm_display_employee_list() {
         </form>
 
         <?php
-        // Çalışanları al
         $employee_options = $wpdb->get_results("SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'lm_employee_%'");
 
         $employees = array();
         foreach ($employee_options as $option) {
-            $employee_data = maybe_unserialize($option->option_value); // Eski kayıtlar için gerekli olabilir
+            $employee_data = maybe_unserialize($option->option_value); 
             if (is_array($employee_data)) {
                 $employees[] = $employee_data;
             }
         }
 
-        // Filtreleme
         $filtered_employees = array();
         foreach ($employees as $employee_data) {
             $include = true;
@@ -597,7 +540,6 @@ function lm_display_employee_list() {
                 }
             });
 
-            // Sayfa yüklendiğinde eğer state seçiliyse şehirleri yükle
             var initialState = $('#filter_state').val();
             var initialCity = '<?php echo isset($_GET['filter_city']) ? esc_js($_GET['filter_city']) : ''; ?>';
             if (initialState) {
@@ -608,6 +550,4 @@ function lm_display_employee_list() {
     <?php
 }
 
-// `lm_get_cities_by_state()` fonksiyonunu BURADAN KALDIRIYORUZ
-// Bu fonksiyon `ajax-handler.php` dosyasında tanımlı ve tekrar tanımlanmasına gerek yok.
 ?>

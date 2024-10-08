@@ -2,7 +2,7 @@
 /*
 Plugin Name: Location Manager
 Description: A plugin that allows managing states and cities and dynamic URL redirection based on location.
-Version: 1.2.7
+Version: 1.3.4.2
 Author: Code Genie Studio
 */
 
@@ -22,7 +22,8 @@ include_once plugin_dir_path(__FILE__) . 'includes/employee-shortcode.php';
 
 function lm_enqueue_custom_js() {
     if (!wp_script_is('lm-ajax-script-frontend', 'enqueued')) {
-        wp_enqueue_script('lm-ajax-script-frontend', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), '1.2.7', true);
+        wp_enqueue_script('jquery');
+        wp_enqueue_script('lm-ajax-script-frontend', plugin_dir_url(__FILE__) . 'assets/js/ajax-script.js', array('jquery'), '1.3.5', true);
         
         $service_slugs = lm_get_dynamic_service_slugs();
         wp_localize_script('lm-ajax-script-frontend', 'lm_service_slugs', array(
@@ -35,7 +36,7 @@ add_action('wp_enqueue_scripts', 'lm_enqueue_custom_js');
 function lm_enqueue_custom_styles() {
     if ( is_front_page() || is_home() ) {
         $plugin_url = plugin_dir_url( __FILE__ );
-        wp_enqueue_style( 'lm-custom-style', $plugin_url . 'assets/css/lcoation-manager.css' );
+        wp_enqueue_style( 'lm-custom-style', $plugin_url . 'assets/css/lcoation-manager.css', array(), '1.1.2');
     }
 }
 add_action( 'wp_enqueue_scripts', 'lm_enqueue_custom_styles' );

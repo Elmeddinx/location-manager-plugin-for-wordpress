@@ -72,7 +72,6 @@ function lm_display_location_meta_box($post) {
                 }
             });
 
-            // Load cities on page load if state is already selected
             var initialState = $('#lm_state').val();
             if (initialState) {
                 loadCities(initialState);

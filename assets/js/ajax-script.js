@@ -87,8 +87,39 @@
             $('.header-menu a').each(function () {
                 const linkText = $(this).text().toLowerCase().trim().replace(/\s+/g, '-');
                 const matchingSlug = lm_service_slugs.slugs.find(slug => {
-                    const regex = new RegExp(`^${slug}$`, 'i');  // Tam eşleşme için regex oluştur
-                    return regex.test(linkText);  // linkText tam olarak slug ile eşleşiyor mu?
+                    const regex = new RegExp(`^${slug}$`, 'i');
+                    return regex.test(linkText);
+                });
+
+                if (matchingSlug && userCity && userState) {
+                    $(this).attr('href', '/' + matchingSlug + '/' + userCity + '-' + userState);
+                } else if (matchingSlug && (!userCity || !userState)) {
+                    $(this).attr('href', '/' + matchingSlug);
+                }
+            });
+            $('.service-card-link a').each(function () {
+                const linkText = $(this).text().toLowerCase().trim().replace(/\s+/g, '-');
+                const matchingSlug = lm_service_slugs.slugs.find(slug => {
+                    const regex = new RegExp(`^${slug}$`, 'i');
+                    return regex.test(linkText);
+                });
+
+                if (matchingSlug && userCity && userState) {
+                    $(this).attr('href', '/' + matchingSlug + '/' + userCity + '-' + userState);
+                } else if (matchingSlug && (!userCity || !userState)) {
+                    $(this).attr('href', '/' + matchingSlug);
+                }
+            });
+            $('.service-card-btn .wdt-button').each(function () {
+                let linkText = $(this).text().toLowerCase().trim().replace(/\s+/g, '-');
+
+                if (linkText.startsWith('view-')) {
+                    linkText = linkText.replace('view-', '');
+                }
+
+                const matchingSlug = lm_service_slugs.slugs.find(slug => {
+                    const regex = new RegExp(`^${slug}$`, 'i');
+                    return regex.test(linkText);
                 });
 
                 if (matchingSlug && userCity && userState) {
