@@ -90,7 +90,6 @@
                     const regex = new RegExp(`^${slug}$`, 'i');
                     return regex.test(linkText);
                 });
-
                 if (matchingSlug && userCity && userState) {
                     $(this).attr('href', '/' + matchingSlug + '/' + userCity + '-' + userState);
                 } else if (matchingSlug && (!userCity || !userState)) {
